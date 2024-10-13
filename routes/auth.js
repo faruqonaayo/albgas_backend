@@ -1,15 +1,20 @@
 import express from "express";
 
 // importing my validators module
-import validatorArray from "../validators/validators.js";
+import registerValidator from "../validators/registerValidator.js";
 
 // importing my controllers
-import * as authController from "../controllers/auth.js";
+import * as authControllers from "../controllers/auth.js";
 
 // creating express router
 const router = express.Router();
 
 // defining routes
-router.put("/register", validatorArray, authController.putRegisterUser);
+
+// route to register user
+router.put("/register", registerValidator, authControllers.putRegisterUser);
+
+// route to log users in
+router.post("/login", authControllers.postLoginUser);
 
 export default router;

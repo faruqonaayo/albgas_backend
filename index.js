@@ -23,6 +23,18 @@ app.use(bodyParser.json());
 // my routes
 app.use("/auth", authRoutes);
 
+// invalid route middleware
+app.use((req, res, next) => {
+  return res.status(404).json({ message: "Invalid route", statusCode: 404 });
+});
+
+// error handling middleware
+app.use((error, req, res, next) => {
+  console.log(error.message);
+  console.log(error);
+  return res.status(500).json({ message: "Server error", statusCode: 500 });
+});
+
 // express app listinng on a port
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
