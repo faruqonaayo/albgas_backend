@@ -6,6 +6,7 @@ import cors from "cors";
 // My custom modules
 import dotenvConfig from "./util/dotenvConfig.js";
 import authRoutes from "./routes/auth.js";
+import adminRoutes from "./routes/admin.js";
 
 dotenvConfig;
 
@@ -26,6 +27,7 @@ app.use(cors());
 
 // my routes
 app.use("/auth", authRoutes);
+app.use("/admin", adminRoutes);
 
 // invalid route middleware
 app.use((req, res, next) => {

@@ -100,7 +100,7 @@ export async function postLoginUser(req, res, next) {
         // if user is found and password is correct
 
         // create a token to send to the user
-        generateToken({ id: userExists._id }, 60, (token) => {
+        generateToken({ id: userExists._id }, 1440, (token) => {
           if (!token) {
             return next(new Error("Error creating token"));
           }
