@@ -42,6 +42,16 @@ const validatorArray = [
       }
     })
     .withMessage("Address Province should be a valid Canadian province"),
+  body("gender")
+    .trim()
+    .custom((value, { req }) => {
+      if (value.toLowerCase() === "male" || value.toLowerCase() === "female") {
+        return true;
+      } else {
+        return false;
+      }
+    })
+    .withMessage("Gender should me male or female"),
   body("password")
     .trim()
     .isLength({ min: 7 })

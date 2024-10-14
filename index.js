@@ -1,6 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
+import cors from "cors";
 
 // My custom modules
 import dotenvConfig from "./util/dotenvConfig.js";
@@ -19,6 +20,9 @@ mongoose.connect(process.env.DB_CONNECTION_STRING, {
 
 // using body parser middleware to parse the JSON request body
 app.use(bodyParser.json());
+
+// using cors middleware to enable cross origin requests
+app.use(cors());
 
 // my routes
 app.use("/auth", authRoutes);

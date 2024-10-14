@@ -36,7 +36,7 @@ export async function putRegisterUser(req, res, next) {
       const newUser = new User({
         firstName: req.body.firstName,
         lastName: req.body.lastName,
-        gender: req.body.gender,
+        gender: req.body.gender.toLowerCase(),
         dob: req.body.dob,
         email: req.body.email.toLowerCase(),
         occupation: req.body.occupation,
@@ -100,7 +100,7 @@ export async function postLoginUser(req, res, next) {
         // if user is found and password is correct
 
         // create a token to send to the user
-        generateToken({ id: userExists._id }, 0.2, (token) => {
+        generateToken({ id: userExists._id }, 60, (token) => {
           if (!token) {
             return next(new Error("Error creating token"));
           }
