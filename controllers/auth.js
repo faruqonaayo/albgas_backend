@@ -13,7 +13,7 @@ export async function putRegisterUser(req, res, next) {
 
   // checking if error is present in the express validator middleware
   if (errors.length > 0) {
-    return res.status(422).json({ message: errors, statusCode: 422 });
+    return res.status(422).json({ message: errors[0], statusCode: 422 });
   }
 
   bcrypt.hash(req.body.password, 12, async (err, hashedPassword) => {

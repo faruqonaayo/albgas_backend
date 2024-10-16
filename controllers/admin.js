@@ -1,9 +1,13 @@
 import mongodb from "mongodb";
+import { validationResult } from "express-validator";
+import bcrypt from "bcrypt";
 
 // importing custom modules
 import dotenvConfig from "../util/dotenvConfig.js";
 import { verifyToken } from "../util/jwtoken.js";
 dotenvConfig;
+
+import User from "../models/user.js";
 
 const MongoClient = new mongodb.MongoClient(process.env.DB_CONNECTION_STRING);
 
@@ -117,6 +121,116 @@ export function checkAuth(req, res, next) {
           message: "Unauthorized",
           statusCode: 401,
         });
+      }
+    });
+  } else {
+    return res.status(401).json({
+      message: "Unauthorized",
+      statusCode: 401,
+    });
+  }
+}
+
+export function getProfile(req, res, next) {
+  // checking if there is a token in the request header
+  if (req.headers.authorization) {
+    const headerToken = req.headers.authorization.split(":")[1];
+    verifyToken(headerToken, async (result) => {
+      try {
+        if (result) {
+          // getting the user profile details from the database
+          const user = await User.findOne({ _id: result.id });
+          res.status(200).json({
+            message: "Success",
+            statusCode: 200,
+            profile: {
+              firstName: user.firstName,
+              lastName: user.lastName,
+              email: user.email,
+            },
+          });
+        } else {
+          return res.status(401).json({
+            message: "Unauthorized",
+            statusCode: 401,
+          });
+        }
+      } catch (error) {
+        next(error);
+      }
+    });
+  } else {
+    return res.status(401).json({
+      message: "Unauthorized",
+      statusCode: 401,
+    });
+  }
+}
+
+export function updateProfile(req, res, next) {
+  // checking if there is a token in the request header
+  if (req.headers.authorization) {
+    const headerToken = req.headers.authorization.split(":")[1];
+    verifyToken(headerToken, async (result) => {
+      try {
+        if (result) {
+          // checking if there are validation errors
+          const { errors } = validationResult(req);
+          if (errors.length > 0) {
+            return res
+              .status(422)
+              .json({ message: errors[0], statusCode: 422 });
+          } else {
+            bcrypt.hash(req.body.password, 12, async (err, hashedPassword) => {
+              if (err) {
+                next(err);
+              }
+
+              // getting the user profile details from the database
+              const user = await User.findOne({ _id: result.id });
+
+              // checking if another user has the email sent in the request body
+              const emailExists = await User.findOne({
+                email: req.body.email.toLowerCase(),
+              });
+
+              if (
+                emailExists &&
+                user._id.toString() !== emailExists._id.toString()
+              ) {
+                return res.status(409).json({
+                  message: "Email exists already",
+                  statusCode: 409,
+                });
+              }
+
+              // updating the user profile details in the database
+              user.firstName = req.body.firstName;
+              user.lastName = req.body.lastName;
+              user.email = req.body.email;
+              user.password = hashedPassword;
+
+              await user.save();
+
+              return res.status(200).json({
+                message: "Profile updated successfully",
+                statusCode: 200,
+                profile: {
+                  firstName: user.firstName,
+                  lastName: user.lastName,
+                  email: user.email,
+                },
+              });
+            });
+          }
+        } else {
+          return res.status(401).json({
+            message: "Unauthorized",
+            statusCode: 401,
+          });
+        }
+      } catch (error) {
+        next(error);
       }
     });
   } else {
